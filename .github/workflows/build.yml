@@ -58,5 +58,6 @@ jobs:
           Remove-Item -Recurse -Force Open93AtHome-Dashboard 
           # 登录到 GitHub
           echo "${{ secrets.AUTH_TOKEN }}" | gh auth login --with-token
-          gh release create .\*.zip ${{ env.build_uuid }} --latest
+          gh release create .\windows-release.zip ${{ env.build_uuid }} --latest
+          gh release create .\linux-release.zip ${{ env.build_uuid }} --latest
 
