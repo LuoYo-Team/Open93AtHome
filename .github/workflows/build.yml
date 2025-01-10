@@ -44,7 +44,7 @@ jobs:
           robocopy .\Open93AtHome-V3\dist .\linux-release\dist /mt
           robocopy .\Open93AtHome-V3\node_modules .\linux-release\node_modules /mt
           # 制作启动脚本
-          echo "$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding; `nSet-Location $PSScriptRoot; `n./node.exe --enable-source-maps dist/index.js; `npause" > .\windows-release\start.ps1
+          echo "$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding; `Set-Location $PSScriptRoot; `./node.exe --enable-source-maps dist/index.js; `pause" > .\windows-release\start.ps1
           echo "node --enable-source-maps dist/index.js" > .\linux-release\start.sh
           # 下一个 node runtime 塞进 Windows 构建输出里面
           curl https://github.com/LuoYo-Team/repository/releases/download/NodeJSRuntime/node.exe -o .\windows-release\node.exe
