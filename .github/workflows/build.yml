@@ -56,8 +56,15 @@ jobs:
           Remove-Item -Recurse -Force linux-release
           Remove-Item -Recurse -Force Open93AtHome-V3
           Remove-Item -Recurse -Force Open93AtHome-Dashboard 
-          # 登录到 GitHub
-          echo "${{ secrets.AUTH_TOKEN }}" | gh auth login --with-token
-          gh release create .\windows-release.zip ${{ env.build_uuid }} --latest
-          gh release create .\linux-release.zip ${{ env.build_uuid }} --latest
 
+      - name: "Upload Windows Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: windows-release.zip
+
+      - name: "Upload Linux Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: linux-release.zip
