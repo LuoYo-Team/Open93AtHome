@@ -1,0 +1,63 @@
+name: "Build Open93AtHome"
+
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+jobs:
+  build-on-windows:
+    runs-on: windows-2022
+    env:
+      build_uuid: ${{ github.run_id }}
+
+    steps:
+      - name: "Setup NodeJS"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+        
+      - name: "Build/Pack/Make Startup Script/Upload Artifact"
+        run: | 
+          # 检出储存库
+          git clone https://github.com/Saltwood-Studio/Open93AtHome-V3.git 
+          git clone https://github.com/SaltWood-Studio/Open93AtHome-Dashboard.git 
+          # 切换到目录
+          Set-Location -Path .\Open93AtHome-V3
+          # 安装依赖和编译
+          npm install
+          npm run build
+          # 切到 Dashboard 的目录
+          Set-Location -Path ..\Open93AtHome-Dashboard
+          # 安装依赖和编译
+          npm install
+          npm run build
+          # 将构建结果合并到 Open93AtHome-V3
+          robocopy .\dist ..\Open93AtHome-V3\dist\dashboard /mt
+          Set-Location -Path ..
+          # 建个目录用于输出构建结果
+          mkdir windows-release
+          mkdir linux-release
+          # 输出构建结果
+          robocopy .\Open93AtHome-V3\node_modules .\windows-release\node_modules /mt
+          robocopy .\Open93AtHome-V3\dist .\windows-release\dist /mt
+          robocopy .\Open93AtHome-V3\dist .\linux-release\dist /mt
+          robocopy .\Open93AtHome-V3\node_modules .\linux-release\node_modules /mt
+          # 制作启动脚本
+          echo "$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding; `nSet-Location $PSScriptRoot; `n./node.exe --enable-source-maps dist/index.js; `npause" > .\windows-release\start.ps1
+          echo "node --enable-source-maps dist/index.js" > .\linux-release\start.sh
+          # 下一个 node runtime 塞进 Windows 构建输出里面
+          curl https://github.com/LuoYo-Team/repository/releases/download/NodeJSRuntime/node.exe -o .\windows-release\node.exe
+          # 打包构建文件
+          Compress-Archive -Path .\windows-release -DestinationPath .\windows-release.zip
+          Compress-Archive -Path .\linux-release -DestinationPath .\linux-release.zip
+          # 删除构建文件和储存库
+          Remove-Item -Recurse -Force windows-release
+          Remove-Item -Recurse -Force linux-release
+          Remove-Item -Recurse -Force Open93AtHome-V3
+          Remove-Item -Recurse -Force Open93AtHome-Dashboard 
+          # 登录到 GitHub
+          echo "${{ secrets.AUTH_TOKEN }}" | gh auth login --with-token
+          gh release create .\windows-release.zip --tag ${{ env.build_uuid }} --latest
+          gh release create .\linux-release.zip --tag ${{ env.build_uuid }} --latest
+
