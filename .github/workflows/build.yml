@@ -33,16 +33,16 @@ jobs:
           npm install
           npm run build
           # 将构建结果合并到 Open93AtHome-V3
-          robocopy .\dist ..\Open93AtHome-V3\dist\dashboard /mt
+          robocopy .\dist ..\Open93AtHome-V3\dist\dashboard /mt /E
           Set-Location -Path ..
           # 建个目录用于输出构建结果
           mkdir windows-release
           mkdir linux-release
           # 输出构建结果
-          robocopy .\Open93AtHome-V3\node_modules .\windows-release\node_modules /mt
-          robocopy .\Open93AtHome-V3\dist .\windows-release\dist /mt
-          robocopy .\Open93AtHome-V3\dist .\linux-release\dist /mt
-          robocopy .\Open93AtHome-V3\node_modules .\linux-release\node_modules /mt
+          robocopy .\Open93AtHome-V3\node_modules .\windows-release\node_modules /mt /E
+          robocopy .\Open93AtHome-V3\dist .\windows-release\dist /mt /E
+          robocopy .\Open93AtHome-V3\dist .\linux-release\dist /mt /E
+          robocopy .\Open93AtHome-V3\node_modules .\linux-release\node_modules /mt /E
           # 制作启动脚本
           echo "$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding; `Set-Location $PSScriptRoot; `./node.exe --enable-source-maps dist/index.js; `pause" > .\windows-release\start.ps1
           echo "node --enable-source-maps dist/index.js" > .\linux-release\start.sh
